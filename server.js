@@ -1,12 +1,22 @@
-var express    =    require('express');
-var app        =    express();
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('private/monca.key', 'utf8');
+var certificate = fs.readFileSync('private/monca.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
+var express = require('express');
+var app = express();
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
 
 require('./router/main')(app);
 app.set('views',__dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-var server     =    app.listen(3000,function(){
+var server     =    httpsServer.listen(3000,function(){
 	console.log("Express is running on port 3000");
 });
 

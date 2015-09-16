@@ -1,0 +1,2 @@
+C:\OpenSSL-Win64\bin\openssl.exe
+openssl req -new -x509 -days 365 -key monca.key -out monca.crt -config openssl.cfg
