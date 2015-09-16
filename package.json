@@ -1,0 +1,26 @@
+{
+  "name": "projetjs",
+  "version": "1.0.0",
+  "description": "projet de javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://rlegerStras@github.com/rlegerStras/ProjetJS.git"
+  },
+  "keywords": [
+    "projet",
+    "js"
+  ],
+  "author": "leger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rlegerStras/ProjetJS/issues"
+  },
+  "homepage": "https://github.com/rlegerStras/ProjetJS#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
