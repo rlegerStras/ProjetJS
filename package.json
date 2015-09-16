@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/rlegerStras/ProjetJS#readme",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "ejs": "~1.0.0"
   }
 }
