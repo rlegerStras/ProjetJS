@@ -11,16 +11,13 @@ var app = express();
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-require('./router/main')(app);
-app.set('views',__dirname + '/public');
-app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
+app.use(express.static(__dirname+"/public"));
+
+app.get('/', function (req, res) {
+    res.setHeader('Content-Type', 'text/html');
+    res.render(__dirname + 'index');
+});
 
 var server     =    httpsServer.listen(3000,function(){
 	console.log("Express is running on port 3000");
 });
-
-require('./router/main')(app);
-app.set('views',__dirname + '/public');
-app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
