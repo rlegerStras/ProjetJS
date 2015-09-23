@@ -5,7 +5,7 @@ ws.onopen = function()
 };
 ws.onmessage = function(message)
 {
-	console.log('reponse : %s', message);
+	console.log('reponse : %s', message.data);
 };
 
 // Création disque
