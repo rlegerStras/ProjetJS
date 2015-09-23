@@ -1,9 +1,19 @@
+ws = new WebSocket('wss://localhost:3000');
+ws.onopen = function()
+{
+	ws.send('connexion client');
+};
+ws.onmessage = function(message)
+{
+	console.log('reponse : %s', message);
+};
+
 // Création disque
 var maxX = 1000;
 var maxY = 500;
 var directionX = 1;
 var directionY = 0;
-var pointDisque = new Point(100,100);
+var pointDisque = new Point(200,100);
 
 var count = 0;
 var nombreDisques = 0;
@@ -11,7 +21,9 @@ var nombreDisques = 0;
 var disques = [];
 var histo = new Array();
 
-for	(i = 0; i < 3; i++)
+var tailleCercle = 20;
+
+for	(i = 0; i < 8; i++)
 {
 	createCircle(nombreDisques);
 }
@@ -22,7 +34,7 @@ function createCircle (nombre) {
 	{
 		var disque = new Path.Circle({
 			center: [pointDisque.x, pointDisque.y],
-			radius: 30,
+			radius: tailleCercle,
 			fillColor: 'green',
 			strokeColor: 'black'
 		});
@@ -30,8 +42,8 @@ function createCircle (nombre) {
 	else
 	{
 		var disque = new Path.Circle({
-			center: [disques[nombre-1].position.x-20, disques[nombre-1].position.y],
-			radius: 30,
+			center: [disques[nombre-1].position.x-tailleCercle, disques[nombre-1].position.y],
+			radius: tailleCercle,
 			fillColor: 'blue',
 			strokeColor: 'black'
 		});
@@ -58,7 +70,7 @@ function onMouseDown(event) {
 };
 
 function onFrame(event) {
-	while (count <= 20)
+	while (count <= tailleCercle)
 	{
 		for	(i = disques.length-1; i > -1; i--)
 		{
@@ -74,8 +86,8 @@ function onFrame(event) {
 		disk = disques[i]
 		if(i != 0)
 		{
-			disk.position.x = histo['serpent'+(i-1)][count-20].x;
-			disk.position.y = histo['serpent'+(i-1)][count-20].y;
+			disk.position.x = histo['serpent'+(i-1)][count-tailleCercle].x;
+			disk.position.y = histo['serpent'+(i-1)][count-tailleCercle].y;
 		}
 		else
 		{

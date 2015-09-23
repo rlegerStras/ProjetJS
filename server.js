@@ -2,6 +2,7 @@
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
+
 // Lit le certificat et la clé
 var privateKey  = fs.readFileSync('private/monca.key', 'utf8');
 var certificate = fs.readFileSync('private/monca.crt', 'utf8');
@@ -13,20 +14,38 @@ var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
 var app = express();
 
-// Création des serveurs
-var httpServer = http.createServer(app);
+// Création du serveur https
 var httpsServer = https.createServer(credentials, app);
 
 // Ajout des pages dans le dossier "public"
 app.use(express.static(__dirname+"/public"));
 
-// Réponse du serveur si demande de page
-app.get('/', function (req, res) {
-    res.setHeader('Content-Type', 'text/html');
-    res.render(__dirname + 'index');
-});
+// Création du serveur WS
+var server = httpsServer,
+			url = require('url'),
+			WebSocketServer = require('ws').Server,
+			wss = new WebSocketServer({ server: server}),
+			express,
+			app,
+			port = 3000;
 
 // Réponse du serveur si lancé
-var server     =    httpsServer.listen(3000,function(){
-	console.log("Express is running on port 3000");
+server.listen(port, function()
+{
+	console.log('Listening on ' + server.address().port)
+});
+
+// Connexion wss, configuration des messages reçus
+wss.on('connection', function connection(ws) {
+	var location = url.parse(ws.upgradeReq.url, true);
+
+	ws.on('message', function incoming(message) {
+		console.log('received: %s', message);
+		ws.send("connexion accepted");
+    });
+	
+	setInterval( function()
+	{
+		ws.send("essai TimeOut");
+	}, 2000);
 });
