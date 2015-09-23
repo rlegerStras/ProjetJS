@@ -15,11 +15,17 @@
 			// Note the plus operator on Point objects.
 			// PaperScript does that for us, and much more!
 			path.lineTo(start + [ 100, -50 ]);
+			// Disque
+			var disque = new Path.Circle({
+				center: [900, 400],
+				radius: 50,
+				fillColor: 'green'
+			});
 		</script>
 	</head>
 	<body>
 		<h1>Bonjour le monde !</h1>
 		<h3>Salut à tous et bienvenue à notre super jeu Snakes ... Multijoueurs !</h3>
-		<canvas id="myCanvas" resize></canvas>
+		<canvas id="myCanvas" width="1000" height="500"></canvas>
 	</body>
 </html>
