@@ -1,0 +1,2 @@
+Utilisateur : Pour jouer, aller sur le site https://localhost:3000
+Administrateur : Lancer node server.js
