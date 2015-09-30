@@ -1,55 +1,67 @@
+//ws
 ws = new WebSocket('wss://localhost:3000');
 ws.onopen = function()
 {
-	ws.send('connexion client');
-    createSnake();
+    console.log("ok");
+    snake = createSnake();
+    Jsnake = JSON.stringify(snake);
+    ws.send("creation"+Jsnake);
 };
 ws.onmessage = function(message)
 {
 	console.log('reponse : %s', message.data);
-    if(message.data == 'update')
+    /*if(message.data == 'update')
     {
         getFrame();
-    }
+    }*/
 };
 
-var snakes = [];
+//Initialisation taille Canvas et Cercle
+
+var maxX = 1000;
+var maxY = 500;
+var initTete = new Point(200,100);
+var tailleCercle = 10;
+var nbDisqueIni = 8;
 
 function createSnake()
 {
-    for	(i = 0; i < 8; i++)
+    var directionX = 1;
+    var directionY = 0;
+    var count = 0;
+    
+    var histo = new Array();
+    var disques = [];
+    
+    for	(i = 0; i < nbDisqueIni; i++)
     {
-        createCircle(nombreDisques);
+        histo['corps'+i] = new Array();
+        disk = createCircle(i,disques);
+        disques.push(disk);
+        for (j = 0; j <= 20 ; j++)
+        {
+            histo['corps'+i].push(disk.position);
+        }
     }
     
+    var snake =
+    {
+        disques : disques,
+        histo : histo,
+        directionX : directionX,
+        directionY : directionY,
+        count : count
+    }
+    
+    return snake;
 }
 
-/*//Music
-var player = document.querySelector('#audioPlayer');
-player.play();
-*/
-
 // Création disque
-var maxX = 1000;
-var maxY = 500;
-var directionX = 1;
-var directionY = 0;
-var pointDisque = new Point(200,100);
-
-var count = 0;
-var nombreDisques = 0;
-
-var disques = [];
-var histo = new Array();
-
-var tailleCercle = 10;
-
-// Affichage disque
-function createCircle (nombre) {
+function createCircle (nombre,disques) {
 	if(nombre==0)
 	{
 		var disque = new Path.Circle({
-			center: [pointDisque.x, pointDisque.y],
+			center: [initTete.x, initTete.y],
 			radius: tailleCercle,
 			fillColor: 'green',
 			strokeColor: 'black'
@@ -64,18 +76,17 @@ function createCircle (nombre) {
 			strokeColor: 'black'
 		});
 	}
-	disques.push(disque);
-	histo['corps'+nombreDisques] = new Array();
-	nombreDisques++;
+    return disque;
 }
 
+/*
 function toRadians (angle) {
   return angle * (Math.PI / 180);
 }
-
+*/
 function onMouseDown(event) {
 	// Créé le vecteur entre le centre du disque et le point cliqué
-	vector = (event.point - disques[0].position);
+	/*vector = (event.point - disques[0].position);
 	
 	// Normalisation (x et y divisés par la taille
 	vectorN = vector.normalize();
@@ -83,27 +94,39 @@ function onMouseDown(event) {
 	// Ajout aux directions
 	directionX = vectorN.x;
 	directionY = vectorN.y;
+    
+    ws.send('clic');*/
+    
+    point = event.point;
+    Jpoint = JSON.stringify(point);
+    ws.send('clic'+point);
 };
-
-function getFrame() {
-    while (count <= tailleCercle)
+/*
+//Mise à jour des vues
+function getFrame(snakes) {
+    for (si = 1 ; si < snakes.length ; si++)
     {
-        for	(i = disques.length-1; i > -1; i--)
+        snake = 
+    }
+    snake2 = snake;
+    while (snake['count'] <= tailleCercle)
+    {
+        for	(i = snake['disques'].length-1; i > -1; i--)
         {
-            disk = disques[i];
-            disk.position.x = disk.position.x + directionX;
-            disk.position.y = disk.position.y + directionY;
-            histo['corps'+i].push(disk.position);
+            disk = snake['disques'][i];
+            disk.position.x = disk.position.x + snake['directionX'];
+            disk.position.y = disk.position.y + snake['directionY'];
+            snake2['histo']['corps'+i].push(disk.position);
         }
         count++;
     }
-    for	(i = disques.length-1; i > -1; i--)
+    for	(i = snake['disques'].length-1; i > -1; i--)
     {
-        disk = disques[i]
+        disk = snake['disques'][i]
         if(i != 0)
         {
-            disk.position.x = histo['corps'+(i-1)][count-tailleCercle].x;
-            disk.position.y = histo['corps'+(i-1)][count-tailleCercle].y;
+            disk.position.x = snake2['histo']['corps'+(i-1)][snake2['count']-tailleCercle].x;
+            disk.position.y = snake2['histo']['corps'+(i-1)][snake2['count']-tailleCercle].y;
         }
         else
         {
@@ -124,8 +147,14 @@ function getFrame() {
         if(disk.position.y < 0)
             disk.position.y = 500;
 
-        histo['corps'+i].push(disk.position);
+        snake2['histo']['corps'+i].push(disk.position);
     }
-    count++;
+    snake2['count']++;
     paper.view.update();
 };
+*/
+
+/*//Music
+var player = document.querySelector('#audioPlayer');
+player.play();
+*/
