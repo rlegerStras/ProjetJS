@@ -2,11 +2,32 @@ ws = new WebSocket('wss://localhost:3000');
 ws.onopen = function()
 {
 	ws.send('connexion client');
+    createSnake();
 };
 ws.onmessage = function(message)
 {
 	console.log('reponse : %s', message.data);
+    if(message.data == 'update')
+    {
+        getFrame();
+    }
 };
+
+var snakes = [];
+
+function createSnake()
+{
+    for	(i = 0; i < 8; i++)
+    {
+        createCircle(nombreDisques);
+    }
+    
+}
+
+/*//Music
+var player = document.querySelector('#audioPlayer');
+player.play();
+*/
 
 // Création disque
 var maxX = 1000;
@@ -21,12 +42,7 @@ var nombreDisques = 0;
 var disques = [];
 var histo = new Array();
 
-var tailleCercle = 20;
-
-for	(i = 0; i < 8; i++)
-{
-	createCircle(nombreDisques);
-}
+var tailleCercle = 10;
 
 // Affichage disque
 function createCircle (nombre) {
@@ -49,7 +65,7 @@ function createCircle (nombre) {
 		});
 	}
 	disques.push(disque);
-	histo['serpent'+nombreDisques] = new Array();
+	histo['corps'+nombreDisques] = new Array();
 	nombreDisques++;
 }
 
@@ -69,46 +85,47 @@ function onMouseDown(event) {
 	directionY = vectorN.y;
 };
 
-function onFrame(event) {
-	while (count <= tailleCercle)
-	{
-		for	(i = disques.length-1; i > -1; i--)
-		{
-			disk = disques[i];
-			disk.position.x = disk.position.x + directionX;
-			disk.position.y = disk.position.y + directionY;
-			histo['serpent'+i].push(disk.position);
-		}
-		count++;
-	}
-	for	(i = disques.length-1; i > -1; i--)
-	{
-		disk = disques[i]
-		if(i != 0)
-		{
-			disk.position.x = histo['serpent'+(i-1)][count-tailleCercle].x;
-			disk.position.y = histo['serpent'+(i-1)][count-tailleCercle].y;
-		}
-		else
-		{
-			// Ajoute la direction (entre -1 et 1)
-			disk.position.x = disk.position.x + directionX;
-			disk.position.y = disk.position.y + directionY;
-		}
-		
-		if(disk.position.x > 1000)
-			disk.position.x = 0;
-	
-		if(disk.position.x < 0)
-			disk.position.x = 1000;
-		
-		if(disk.position.y > 500)
-			disk.position.y = 0;
-		
-		if(disk.position.y < 0)
-			disk.position.y = 500;
-		
-		histo['serpent'+i].push(disk.position);
-	}
-	count++;
-}
+function getFrame() {
+    while (count <= tailleCercle)
+    {
+        for	(i = disques.length-1; i > -1; i--)
+        {
+            disk = disques[i];
+            disk.position.x = disk.position.x + directionX;
+            disk.position.y = disk.position.y + directionY;
+            histo['corps'+i].push(disk.position);
+        }
+        count++;
+    }
+    for	(i = disques.length-1; i > -1; i--)
+    {
+        disk = disques[i]
+        if(i != 0)
+        {
+            disk.position.x = histo['corps'+(i-1)][count-tailleCercle].x;
+            disk.position.y = histo['corps'+(i-1)][count-tailleCercle].y;
+        }
+        else
+        {
+            // Ajoute la direction (entre -1 et 1)
+            disk.position.x = disk.position.x + directionX;
+            disk.position.y = disk.position.y + directionY;
+        }
+
+        if(disk.position.x > 1000)
+            disk.position.x = 0;
+
+        if(disk.position.x < 0)
+            disk.position.x = 1000;
+
+        if(disk.position.y > 500)
+            disk.position.y = 0;
+
+        if(disk.position.y < 0)
+            disk.position.y = 500;
+
+        histo['corps'+i].push(disk.position);
+    }
+    count++;
+    paper.view.update();
+};

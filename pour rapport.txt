@@ -1,1 +1,1 @@
-ws = new WebSocket('wss://localhost:3000')
+npm install -g jshint

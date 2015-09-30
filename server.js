@@ -35,17 +35,48 @@ server.listen(port, function()
 	console.log('Listening on ' + server.address().port)
 });
 
+var clients = [];
+var ids = 0;
+
 // Connexion wss, configuration des messages reçus
 wss.on('connection', function connection(ws) {
 	var location = url.parse(ws.upgradeReq.url, true);
+    clients[ids] = (ws);
+    ids++;
 
 	ws.on('message', function incoming(message) {
 		console.log('received: %s', message);
 		ws.send("connexion accepted");
     });
+    
+    ws.on('close', function() {
+        for (i=0;i<clients.length;i++)
+        {
+            if(clients[i] == ws)
+            {
+                clients[i] = null;
+                console.log('Client '+i+' disconnected.');
+            }
+        }
+    });
+    
+    ws.on('error', function() {
+        console.log('ERROR');
+    });
 	
-	setInterval( function()
-	{
-		ws.send("essai TimeOut");
-	}, 2000);
 });
+
+setInterval( function()
+{
+    d = new Date();
+    console.log(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.toLocaleTimeString());
+    
+    for (i=0;i<clients.length;i++)
+    {
+        if(clients[i] != null)
+        {
+            console.log("Client "+i+" still alive");
+            clients[i].send("update");
+        }
+    }
+}, 20);
