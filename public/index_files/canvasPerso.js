@@ -79,11 +79,6 @@ function createCircle (nombre,disques) {
     return disque;
 }
 
-/*
-function toRadians (angle) {
-  return angle * (Math.PI / 180);
-}
-*/
 function onMouseDown(event) {
 	// Créé le vecteur entre le centre du disque et le point cliqué
 	/*vector = (event.point - disques[0].position);
