@@ -188,6 +188,47 @@ function calculNewPosition() {
     }
 }
 
+function testDetection() {
+    var si,
+        j,
+        currentSnake,
+        currentDisk,
+        sii,
+        jj,
+        comparativeSnake,
+        comparativeDisk,
+        d;
+    
+    // Selection du snake courant
+    for (si = 0; si < snakes.length; si = si + 1) {
+        currentSnake = snakes[si];
+        
+        if (currentSnake !== null) {
+            for	(j = currentSnake.disques.length - 1; j > -1; j = j - 1) {
+                currentDisk = currentSnake.disques[j];
+                
+                // Test avec les autres
+                for (sii = si + 1; sii < snakes.length; sii = sii + 1) {
+                    comparativeSnake = snakes[sii];
+                    
+                    if (comparativeSnake !== null) {
+                        for	(jj = comparativeSnake.disques.length - 1; jj > -1; jj = jj - 1) {
+                            comparativeDisk = comparativeSnake.disques[jj];
+                            
+                            if (Math.pow(comparativeDisk.x - currentDisk.x, 2) + Math.pow(comparativeDisk.y - currentDisk.y, 2) <= Math.pow(2 * tailleCercle, 2)) {
+                                d = new Date();
+                                console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                                console.log("collision entre ", si, "et", sii);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 setInterval(function () {
     calculNewPosition();
     var i,
@@ -199,4 +240,5 @@ setInterval(function () {
             clients[i].send("update" + Jsnakes);
         }
     }
+    testDetection();
 }, 20);
