@@ -23,7 +23,7 @@ var httpsServer = https.createServer(credentials, app);
 /*jslint nomen: true*/
 var str = __dirname + "/public";
 /*jslint nomen: false*/
-var a = express.static(str);
+var a = express['static'](str);
 app.use(a);
 
 // Création du serveur WS
