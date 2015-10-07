@@ -51,11 +51,12 @@ wss.on('connection', function connection(ws) {
             messageJ = message.replace("creation","");
             snake = JSON.parse(messageJ);
             snakes.push(snake);
+            ws.send("creationSnake"+messageJ);
         }
         else if(message.indexOf("clic") != -1 )
         {
-            point = message.replace("clic","");
-            console.log(point);
+            pointJ = message.replace("clic","");
+            point = JSON.parse(pointJ);
             for (i=0;i<clients.length;i++)
             {
                 if(clients[i] == ws)
@@ -64,25 +65,6 @@ wss.on('connection', function connection(ws) {
                 }
             }
         }
-        
-        /*
-        if(message == 'connexion client')
-        {
-            console.log('received: %s', message);
-            ws.send("connexion accepted");
-        }
-		else if(message == 'clic')
-        {
-            for (i=0;i<clients.length;i++)
-            {
-                if(clients[i] != null)
-                {
-                    clients[i].send("update");
-                    console.log("clic");
-                }
-            }
-        }
-        */
     });
     
     ws.on('close', function() {
@@ -91,6 +73,7 @@ wss.on('connection', function connection(ws) {
             if(clients[i] == ws)
             {
                 clients[i] = null;
+                snakes[i] = null;
                 console.log('Client '+i+' disconnected.');
             }
         }
@@ -109,68 +92,87 @@ const tailleCercle = 10;
 
 setInterval( function()
 {
-    d = new Date();
+    //d = new Date();
     //console.log(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.toLocaleTimeString());
+    calculNewPosition();
     
     for (i=0;i<clients.length;i++)
     {
         if(clients[i] != null)
         {
-            //console.log("Client "+i+" still alive");
-            //clients[i].send("update");
+            console.log("Client "+i+" still alive");
+            Jsnakes = JSON.stringify(snakes);  
+            clients[i].send("update"+Jsnakes);
         }
     }
-}, 20);
+}, 10000);
 
 function calculNewPosition()
 {
-    for (si = 1 ; si < snakes.length ; si++)
+    for (si = 0 ; si < snakes.length ; si++)
     {
         snake = snakes[si];
-        
-        for	(i = snake.disques.length-1; i > -1; i--)
+        if(snake != null)
         {
-            disk = snake.disques[i]
-            if(i != 0)
+            for	(j = snake.disques.length-1; j > -1; j--)
             {
-                snakes[si].disques[i].position.x = snake['histo']['corps'+(i-1)][snake['count']-tailleCercle].x;
-                snakes[si].disques[i].position.y = snake['histo']['corps'+(i-1)][snake['count']-tailleCercle].y;
+                disk = snake.disques[j];
+                if(j != 0)
+                {
+                    snakes[si].disques[j].x = snake.histo['corps'+(j-1)][snake['count']-tailleCercle].x;
+                    snakes[si].disques[j].y = snake.histo['corps'+(j-1)][snake['count']-tailleCercle].y;
+                }
+                else
+                {
+                    // Ajoute la direction (entre -1 et 1)
+                    snakes[si].disques[j].x = disk.x + snake['directionX'];
+                    snakes[si].disques[j].y = disk.y + snake['directionY'];
+                }
+
+                if(snakes[si].disques[j].x > 1000)
+                    snakes[si].disques[j].x = 0;
+
+                if(snakes[si].disques[j].x < 0)
+                    snakes[si].disques[j].x = 1000;
+
+                if(snakes[si].disques[j].y > 500)
+                    snakes[si].disques[j].y = 0;
+
+                if(snakes[si].disques[j].y < 0)
+                    snakes[si].disques[j].y = 500;
+
+                snakes[si].histo['corps'+j].push(
+                    {
+                        x : disk.x,
+                        y : disk.y
+                    });
             }
-            else
-            {
-                // Ajoute la direction (entre -1 et 1)
-                snakes[si].disques[i].position.x = disk.position.x + snake['directionX'];
-                snakes[si].disques[i].position.y = disk.position.y + snake['directionY'];
-            }
-
-            if(snakes[si].disques[i].position.x > 1000)
-                snakes[si].disques[i].position.x = 0;
-
-            if(snakes[si].disques[i].position.x < 0)
-                snakes[si].disques[i].position.x = 1000;
-
-            if(snakes[si].disques[i].position.y > 500)
-                snakes[si].disques[i].position.y = 0;
-
-            if(snakes[si].disques[i].position.y < 0)
-                snakes[si].disques[i].position.y = 500;
-
-            snakes[si].histo['corps'+i].push(disk.position);
+            snakes[si].count++;
+            console.log(snakes[si].count);
         }
-        snakes[si].count++;
     }   
 }
 
 function changeDirection(point,i)
 {
-    vector = (point - snakes[i].disques[0].position);
-	
-	// Normalisation (x et y divisés par la taille)
-	vectorN = vector.normalize();
+    //Creation du vecteur
+    vector = 
+        {
+            x : point.x - snakes[i].disques[0].x,
+            y : point.y - snakes[i].disques[0].y
+        }
+    
+    //Calcul de la norme
+    norme = Math.sqrt((vector.x*vector.x)+(vector.y*vector.y));
+    
+    //Vecteur normalisé
+    vectorN = 
+        {
+            x : vector.x/norme,
+            y : vector.y/norme
+        }
 	
 	// Ajout aux directions
 	snakes[i].directionX = vectorN.x;
 	snakes[i].directionY = vectorN.y;
-    console.log(x);
-    console.log(y);
 }

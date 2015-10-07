@@ -2,18 +2,27 @@
 ws = new WebSocket('wss://localhost:3000');
 ws.onopen = function()
 {
-    console.log("ok");
-    snake = createSnake();
-    Jsnake = JSON.stringify(snake);
+    snake = createSnakeServer();
+    Jsnake = JSON.stringify(snake);  
+    console.log(Jsnake);
     ws.send("creation"+Jsnake);
 };
 ws.onmessage = function(message)
 {
-	console.log('reponse : %s', message.data);
-    /*if(message.data == 'update')
+    console.log(message.data);
+    if(message.data.indexOf("creationSnake") != -1 )
     {
-        getFrame();
-    }*/
+        messageJ = message.data.replace("creationSnake","");
+        newSnake = JSON.parse(messageJ);
+        createSnakePaper(newSnake);
+    }
+    
+    if(message.data.indexOf("update") != -1 )
+    {
+        messageJ = message.data.replace("update","");
+        snakes = JSON.parse(messageJ);
+        console.log(snakes);
+    }
 };
 
 //Initialisation taille Canvas et Cercle
@@ -23,14 +32,14 @@ var maxY = 500;
 var initTete = new Point(200,100);
 var tailleCercle = 10;
 var nbDisqueIni = 8;
+var snakes = [];
 
-function createSnake()
+function createSnakeServer()
 {
     var directionX = 1;
     var directionY = 0;
-    var count = 0;
     
-    var histo = new Array();
+    var histo = {};
     var disques = [];
     
     for	(i = 0; i < nbDisqueIni; i++)
@@ -38,11 +47,15 @@ function createSnake()
         histo['corps'+i] = new Array();
         disk = createCircle(i,disques);
         disques.push(disk);
+        d = { x: disk.x,
+              y: disk.y
+            }
         for (j = 0; j <= 20 ; j++)
         {
-            histo['corps'+i].push(disk.position);
+            histo['corps'+i].push(d);
         }
     }
+    
     
     var snake =
     {
@@ -50,104 +63,67 @@ function createSnake()
         histo : histo,
         directionX : directionX,
         directionY : directionY,
-        count : count
+        count : 20
     }
     
     return snake;
 }
 
-// Création disque
+function createSnakePaper(newSnake)
+{
+    snake = [];
+    for(i=0;i<newSnake.disques.length;i++)
+    {
+        var disque = new Path.Circle({
+            center: [newSnake.disques[i].x, newSnake.disques[i].y],
+            radius: tailleCercle,
+            fillColor: newSnake.disques[i].color,
+            strokeColor: 'black'
+        });
+    }
+    snake.push(disque);
+}
+
 function createCircle (nombre,disques) {
-	if(nombre==0)
+    
+    if(nombre==0)
 	{
-		var disque = new Path.Circle({
-			center: [initTete.x, initTete.y],
-			radius: tailleCercle,
-			fillColor: 'green',
-			strokeColor: 'black'
-		});
-	}
-	else
-	{
-		var disque = new Path.Circle({
-			center: [disques[nombre-1].position.x-tailleCercle, disques[nombre-1].position.y],
-			radius: tailleCercle,
-			fillColor: 'blue',
-			strokeColor: 'black'
-		});
-	}
+        xVal = initTete.x;
+        yVal = initTete.y;
+        colorVal = 'green';
+    }
+    else
+    {
+        xVal = disques[nombre-1].x-tailleCercle;
+        yVal = disques[nombre-1].y;
+        colorVal = 'blue';
+    }
+    var disque =
+        {
+            x : xVal,
+            y : yVal,
+            color : colorVal
+        };
     return disque;
 }
 
 function onMouseDown(event) {
-	// Créé le vecteur entre le centre du disque et le point cliqué
-	/*vector = (event.point - disques[0].position);
-	
-	// Normalisation (x et y divisés par la taille
-	vectorN = vector.normalize();
-	
-	// Ajout aux directions
-	directionX = vectorN.x;
-	directionY = vectorN.y;
     
-    ws.send('clic');*/
+    var point =
+        {
+            x : event.point.x,
+            y : event.point.y+0.59375
+        }
     
-    point = event.point;
     Jpoint = JSON.stringify(point);
-    ws.send('clic'+point);
+    ws.send('clic'+Jpoint);
 };
 /*
 //Mise à jour des vues
-function getFrame(snakes) {
-    for (si = 1 ; si < snakes.length ; si++)
-    {
-        snake = 
-    }
-    snake2 = snake;
-    while (snake['count'] <= tailleCercle)
-    {
-        for	(i = snake['disques'].length-1; i > -1; i--)
-        {
-            disk = snake['disques'][i];
-            disk.position.x = disk.position.x + snake['directionX'];
-            disk.position.y = disk.position.y + snake['directionY'];
-            snake2['histo']['corps'+i].push(disk.position);
-        }
-        count++;
-    }
-    for	(i = snake['disques'].length-1; i > -1; i--)
-    {
-        disk = snake['disques'][i]
-        if(i != 0)
-        {
-            disk.position.x = snake2['histo']['corps'+(i-1)][snake2['count']-tailleCercle].x;
-            disk.position.y = snake2['histo']['corps'+(i-1)][snake2['count']-tailleCercle].y;
-        }
-        else
-        {
-            // Ajoute la direction (entre -1 et 1)
-            disk.position.x = disk.position.x + directionX;
-            disk.position.y = disk.position.y + directionY;
-        }
 
-        if(disk.position.x > 1000)
-            disk.position.x = 0;
-
-        if(disk.position.x < 0)
-            disk.position.x = 1000;
-
-        if(disk.position.y > 500)
-            disk.position.y = 0;
-
-        if(disk.position.y < 0)
-            disk.position.y = 500;
-
-        snake2['histo']['corps'+i].push(disk.position);
-    }
-    snake2['count']++;
-    paper.view.update();
-};
 */
+
+//paper.view.update();
 
 /*//Music
 var player = document.querySelector('#audioPlayer');
