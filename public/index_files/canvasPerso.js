@@ -3,25 +3,38 @@ ws = new WebSocket('wss://localhost:3000');
 ws.onopen = function()
 {
     snake = createSnakeServer();
-    Jsnake = JSON.stringify(snake);  
-    console.log(Jsnake);
+    Jsnake = JSON.stringify(snake);
     ws.send("creation"+Jsnake);
 };
 ws.onmessage = function(message)
 {
-    console.log(message.data);
     if(message.data.indexOf("creationSnake") != -1 )
     {
         messageJ = message.data.replace("creationSnake","");
-        newSnake = JSON.parse(messageJ);
-        createSnakePaper(newSnake);
+        if(messageJ != "null")
+        {
+            newSnake = JSON.parse(messageJ);
+            createSnakePaper(newSnake);
+        }
+        else
+        {
+            snakes.push(null);
+        }
     }
-    
-    if(message.data.indexOf("update") != -1 )
+    else if(message.data.indexOf("update") != -1 )
     {
         messageJ = message.data.replace("update","");
-        snakes = JSON.parse(messageJ);
-        console.log(snakes);
+        UpSnakes = JSON.parse(messageJ);
+        update(UpSnakes);
+    }  
+    else if(message.data.indexOf("delete") != -1 )
+    {
+        currentDelete = message.data.replace("delete","");
+        for(i=0;i<snakes[currentDelete].disques.length;i++)
+        {
+            snakes[currentDelete].disques[i].remove();
+        }
+        snakes[currentDelete] = null;
     }
 };
 
@@ -56,7 +69,6 @@ function createSnakeServer()
         }
     }
     
-    
     var snake =
     {
         disques : disques,
@@ -71,7 +83,7 @@ function createSnakeServer()
 
 function createSnakePaper(newSnake)
 {
-    snake = [];
+    disques = [];
     for(i=0;i<newSnake.disques.length;i++)
     {
         var disque = new Path.Circle({
@@ -80,8 +92,12 @@ function createSnakePaper(newSnake)
             fillColor: newSnake.disques[i].color,
             strokeColor: 'black'
         });
+        disques.push(disque);
     }
-    snake.push(disque);
+    snake = {
+        disques : disques
+    }
+    snakes.push(snake);
 }
 
 function createCircle (nombre,disques) {
@@ -118,12 +134,25 @@ function onMouseDown(event) {
     Jpoint = JSON.stringify(point);
     ws.send('clic'+Jpoint);
 };
-/*
-//Mise à jour des vues
-
+/**
+Mise à jour des vues
 */
-
-//paper.view.update();
+function update(UpSnakes)
+{
+    for(is=0;is<UpSnakes.length;is++)
+    {
+        if(snakes[is] != null && UpSnakes[is] != null)
+        {
+            for(i=0;i<UpSnakes[is].disques.length;i++)
+            {
+            
+                snakes[is].disques[i].position.x = UpSnakes[is].disques[i].x;
+                snakes[is].disques[i].position.y = UpSnakes[is].disques[i].y;
+            }
+        }
+    }
+    paper.view.update();
+}
 
 /*//Music
 var player = document.querySelector('#audioPlayer');

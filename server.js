@@ -32,7 +32,7 @@ var server = httpsServer,
 // Réponse du serveur si lancé
 server.listen(port, function()
 {
-	console.log('Listening on ' + server.address().port)
+	console.log('Démarrage du serveur sur le port ' + server.address().port)
 });
 
 var clients = [];
@@ -51,7 +51,25 @@ wss.on('connection', function connection(ws) {
             messageJ = message.replace("creation","");
             snake = JSON.parse(messageJ);
             snakes.push(snake);
-            ws.send("creationSnake"+messageJ);
+            d = new Date();
+            console.log(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.toLocaleTimeString());
+            console.log("Connexion client",snakes.length-1);
+            for (i=0;i<clients.length;i++)
+            {
+                if(clients[i] != null)
+                {
+                    if(clients[i] == ws)
+                    {
+                        for(sn=0;sn<snakes.length-1;sn++)
+                        {
+                            currentJ = JSON.stringify(snakes[sn]);
+                            ws.send("creationSnake"+currentJ);
+                        }
+                    }
+                    clients[i].send("creationSnake"+messageJ);
+                }
+            }
+            
         }
         else if(message.indexOf("clic") != -1 )
         {
@@ -59,23 +77,35 @@ wss.on('connection', function connection(ws) {
             point = JSON.parse(pointJ);
             for (i=0;i<clients.length;i++)
             {
-                if(clients[i] == ws)
+                if(clients[i] != null)
                 {
-                    changeDirection(point,i);
+                    if(clients[i] == ws)
+                    {
+                        changeDirection(point,i);
+                    }
                 }
             }
         }
     });
     
     ws.on('close', function() {
+        currentDelete=-1;
         for (i=0;i<clients.length;i++)
         {
             if(clients[i] == ws)
             {
                 clients[i] = null;
                 snakes[i] = null;
-                console.log('Client '+i+' disconnected.');
+                d = new Date();
+                console.log(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.toLocaleTimeString());
+                console.log('Client '+i+' déconnecté.');
+                currentDelete = i;
             }
+        }
+        for (i=0;i<clients.length;i++)
+        {
+            if(clients[i] != null)
+                clients[i].send("delete"+currentDelete);
         }
     });
     
@@ -92,20 +122,17 @@ const tailleCercle = 10;
 
 setInterval( function()
 {
-    //d = new Date();
-    //console.log(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+d.toLocaleTimeString());
     calculNewPosition();
     
     for (i=0;i<clients.length;i++)
     {
         if(clients[i] != null)
         {
-            console.log("Client "+i+" still alive");
             Jsnakes = JSON.stringify(snakes);  
             clients[i].send("update"+Jsnakes);
         }
     }
-}, 10000);
+}, 20);
 
 function calculNewPosition()
 {
@@ -148,7 +175,6 @@ function calculNewPosition()
                     });
             }
             snakes[si].count++;
-            console.log(snakes[si].count);
         }
     }   
 }
