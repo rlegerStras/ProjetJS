@@ -139,8 +139,8 @@ wss.on('connection', function connection(ws) {
 });
 
 //Var constantes pour le canvas
-var maxX = 1000,
-    maxY = 500,
+var maxX = 800,
+    maxY = 400,
     tailleCercle = 10;
 
 function decalageHistorique(idSerpent, idCorps) {
@@ -173,20 +173,20 @@ function calculNewPosition() {
                     snakes[si].disques[j].y = disk.y + snake.directionY;
                 }
 
-                if (snakes[si].disques[j].x > 1000) {
+                if (snakes[si].disques[j].x > maxX) {
                     snakes[si].disques[j].x = 0;
                 }
 
                 if (snakes[si].disques[j].x < 0) {
-                    snakes[si].disques[j].x = 1000;
+                    snakes[si].disques[j].x = maxX;
                 }
 
-                if (snakes[si].disques[j].y > 500) {
+                if (snakes[si].disques[j].y > maxY) {
                     snakes[si].disques[j].y = 0;
                 }
 
                 if (snakes[si].disques[j].y < 0) {
-                    snakes[si].disques[j].y = 500;
+                    snakes[si].disques[j].y = maxY;
                 }
                 
                 decalageHistorique(si, j);

@@ -1,8 +1,16 @@
 #vies{
-    margin-left:1020px;
+    margin-left:820px;
     margin
 }
 
 #cv{
     position:absolute;
+}
+
+#tabVies{
+    border:1px solid black;
+}
+
+td{
+    border:1px solid black;
 }
