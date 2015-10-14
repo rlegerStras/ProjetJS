@@ -1,5 +1,6 @@
 /*jslint node: true */
 /*jslint browser: true */
+/*jslint devel: true */
 /*global WebSocket, Point, Path, paper*/
 'use strict';
 var ws,
@@ -78,7 +79,7 @@ function createSnakeServer() {
         histo : histo,
         directionX : directionX,
         directionY : directionY,
-        vies : 10
+        vies : 1
     };
     
     return snake;
@@ -177,6 +178,8 @@ ws.onmessage = function (message) {
         }
         
         snakes[currentDelete] = null;
+    } else if (message.data.indexOf("finPartie") !== -1) {
+        alert("Vous avez perdu !");
     }
 };
 

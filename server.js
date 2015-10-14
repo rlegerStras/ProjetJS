@@ -103,7 +103,7 @@ wss.on('connection', function connection(ws) {
             point = JSON.parse(pointJ);
             for (i = 0; i < clients.length; i = i + 1) {
                 if (clients[i] !== null) {
-                    if (clients[i] === ws) {
+                    if (clients[i] === ws && snakes[i] !== null) {
                         changeDirection(point, i);
                     }
                 }
@@ -222,8 +222,31 @@ function reinitialisation(idSnake) {
     }
 }
 
+function touche(idAgresseur, idTouche) {
+    var i;
+    
+    console.log(idAgresseur + " a touché " + idTouche + " !");
+    reinitialisation(idAgresseur);
+    snakes[idAgresseur].vies = snakes[idAgresseur].vies - 1;
+    console.log("Vies de " + idAgresseur + " : " + snakes[idAgresseur].vies);
+
+    if (snakes[idAgresseur].vies < 1) {
+        if (clients[idAgresseur] !== null) {
+            snakes[idAgresseur] = null;
+            clients[idAgresseur].send("finPartie");
+
+            for (i = 0; i < clients.length; i = i + 1) {
+                if (clients[i] !== null) {
+                    clients[i].send("delete" + idAgresseur);
+                }
+            }
+        }
+    }
+}
+
 function testDetection() {
     var si,
+        i,
         j,
         currentSnake,
         currentDisk,
@@ -255,18 +278,12 @@ function testDetection() {
                                 
                                 // Si la tête du 1er snake a touché l'autre snake
                                 if (j === 0) {
-                                    console.log(si + " a touché " + sii + " !");
-                                    reinitialisation(si);
-                                    snakes[si].vies = snakes[si].vies - 1;
-                                    console.log("Vies de " + si + " : " + snakes[si].vies);
+                                    touche(si, sii);
                                 }
                                 
                                 // Si la tête du 2eme snake a touché l'autre snake
                                 if (jj === 0) {
-                                    console.log(sii + " a touché " + si + " !");
-                                    reinitialisation(sii);
-                                    snakes[sii].vies = snakes[sii].vies - 1;
-                                    console.log("Vies de " + sii + " : " + snakes[sii].vies);
+                                    touche(sii, si);
                                 }
                             }
                         }
