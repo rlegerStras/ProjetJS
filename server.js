@@ -114,6 +114,7 @@ wss.on('connection', function connection(ws) {
     ws.on('close', function () {
         var currentDelete = -1,
             d;
+        
         for (i = 0; i < clients.length; i = i + 1) {
             if (clients[i] === ws) {
                 clients[i] = null;
@@ -298,11 +299,10 @@ function testDetection() {
 setInterval(function () {
     calculNewPosition();
     var i,
-        Jsnakes;
+        Jsnakes = JSON.stringify(snakes);
     
     for (i = 0; i < clients.length; i = i + 1) {
-        if (clients[i] !== null) {
-            Jsnakes = JSON.stringify(snakes);
+        if (clients[i] !== null && clients[i].readyState !== 2) {
             clients[i].send("update" + Jsnakes);
         }
     }
