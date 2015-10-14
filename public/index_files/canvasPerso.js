@@ -6,10 +6,12 @@ var ws,
 //Initialisation taille Canvas et Cercle
     maxX = 1000,
     maxY = 500,
-    initTete = new Point(200, 100),
+    xInit = 200,
+    yInit = 0,
     tailleCercle = 10,
     nbDisqueIni = 8,
     snakes = [];
+
 ws = new WebSocket('wss://localhost:3000');
 
 function createCircle(nombre, disques) {
@@ -17,10 +19,14 @@ function createCircle(nombre, disques) {
         yVal,
         colorVal,
         disque;
+    
+    yInit = Math.random() * (maxY + 1);
+    
+    console.log(snakes.length);
     // Tête
     if (nombre === 0) {
-        xVal = initTete.x;
-        yVal = initTete.y;
+        xVal = xInit;
+        yVal = yInit;
         colorVal = 'green';
     } else {
         // Corps
@@ -46,7 +52,8 @@ function createSnakeServer() {
         disk,
         d,
         j,
-        snake;
+        snake,
+        maxHisto = 10;
     
     // Création de tous les disques
     for	(i = 0; i < nbDisqueIni; i = i + 1) {
@@ -56,12 +63,12 @@ function createSnakeServer() {
         disk = createCircle(i, disques);
         // Ajout dans la liste
         disques.push(disk);
-        d = { x: disk.x,
-              y: disk.y
-            };
         // Initialisation de l'historique
-        for (j = 0; j <= 20; j = j + 1) {
-            histo['corps' + i].push(d);
+        for (j = 0; j < maxHisto; j = j + 1) {
+            histo['corps' + i].push({
+                x : disk.x + j - maxHisto + 1,
+                y : disk.y
+            });
         }
     }
     
@@ -71,7 +78,7 @@ function createSnakeServer() {
         histo : histo,
         directionX : directionX,
         directionY : directionY,
-        count : 20
+        vies : 10
     };
     
     return snake;
@@ -106,7 +113,9 @@ Mise à jour des vues
 */
 function update(UpSnakes) {
     var is,
-        i;
+        i,
+        p = document.getElementsByTagName("p")[0],
+        str = "Scores : <br/>";
     
     // Mise à jour des nouvelles coordonnées par le serveur
     for (is = 0; is < UpSnakes.length; is = is + 1) {
@@ -115,8 +124,10 @@ function update(UpSnakes) {
                 snakes[is].disques[i].position.x = UpSnakes[is].disques[i].x;
                 snakes[is].disques[i].position.y = UpSnakes[is].disques[i].y;
             }
+            str = str + "Utilisateur " + is + " : " + UpSnakes[is].vies + " vies<br/>";
         }
     }
+    p.innerHTML = str;
     // Update de la vue
     paper.view.update();
 }

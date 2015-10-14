@@ -69,6 +69,7 @@ wss.on('connection', function connection(ws) {
         point,
         pointJ,
         i;
+    
     clients[ids] = (ws);
     ids = ids + 1;
 
@@ -141,20 +142,29 @@ var maxX = 1000,
     maxY = 500,
     tailleCercle = 10;
 
+function decalageHistorique(idSerpent, idCorps) {
+    var j;
+    for (j = 0; j < snakes[idSerpent].histo['corps' + idCorps].length - 1; j = j + 1) {
+        snakes[idSerpent].histo['corps' + idCorps][j].x = snakes[idSerpent].histo['corps' + idCorps][j + 1].x;
+        snakes[idSerpent].histo['corps' + idCorps][j].y = snakes[idSerpent].histo['corps' + idCorps][j + 1].y;
+    }
+}
+
 function calculNewPosition() {
     var si,
         snake,
         j,
         disk;
+    
     for (si = 0; si < snakes.length; si = si + 1) {
         snake = snakes[si];
         if (snake !== null) {
             for	(j = snake.disques.length - 1; j > -1; j = j - 1) {
                 disk = snake.disques[j];
                 if (j !== 0) {
-                    //On prend la valeur du disque précédent à l'historique de 20
-                    snakes[si].disques[j].x = snake.histo['corps' + (j - 1)][snake.count - tailleCercle].x;
-                    snakes[si].disques[j].y = snake.histo['corps' + (j - 1)][snake.count - tailleCercle].y;
+                    //On prend la valeur du disque précédent à l'historique de 10
+                    snakes[si].disques[j].x = snake.histo['corps' + (j - 1)][0].x;
+                    snakes[si].disques[j].y = snake.histo['corps' + (j - 1)][0].y;
                     
                 } else {
                     // Ajoute la direction (entre -1 et 1)
@@ -177,14 +187,38 @@ function calculNewPosition() {
                 if (snakes[si].disques[j].y < 0) {
                     snakes[si].disques[j].y = 500;
                 }
+                
+                decalageHistorique(si, j);
 
-                snakes[si].histo['corps' + j].push({
+                snakes[si].histo['corps' + j][tailleCercle - 1] = {
                     x : disk.x,
                     y : disk.y
-                });
+                };
             }
-            snakes[si].count = snakes[si].count + 1;
         }
+    }
+}
+
+function reinitialisation(idSnake) {
+    var di,
+        initDistanceX = Math.random() * (maxX + 1),
+        initDistanceY = Math.random() * (maxY + 1),
+        j;
+    
+    for (di = 0; di < snakes[idSnake].disques.length; di = di + 1) {
+        snakes[idSnake].disques[di].x = initDistanceX;
+        snakes[idSnake].disques[di].y = initDistanceY;
+        
+        for (j = 0; j < tailleCercle; j = j + 1) {
+            snakes[idSnake].histo['corps' + di][j] = {
+                x : snakes[idSnake].disques[di].x + j - tailleCercle + 1,
+                y : snakes[idSnake].disques[di].y
+            };
+        }
+        snakes[idSnake].directionX = 1;
+        snakes[idSnake].directionY = 0;
+        
+        initDistanceX = initDistanceX - tailleCercle;
     }
 }
 
@@ -218,7 +252,22 @@ function testDetection() {
                             if (Math.pow(comparativeDisk.x - currentDisk.x, 2) + Math.pow(comparativeDisk.y - currentDisk.y, 2) <= Math.pow(2 * tailleCercle, 2)) {
                                 d = new Date();
                                 console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
-                                console.log("collision entre ", si, "et", sii);
+                                
+                                // Si la tête du 1er snake a touché l'autre snake
+                                if (j === 0) {
+                                    console.log(si + " a touché " + sii + " !");
+                                    reinitialisation(si);
+                                    snakes[si].vies = snakes[si].vies - 1;
+                                    console.log("Vies de " + si + " : " + snakes[si].vies);
+                                }
+                                
+                                // Si la tête du 2eme snake a touché l'autre snake
+                                if (jj === 0) {
+                                    console.log(sii + " a touché " + si + " !");
+                                    reinitialisation(sii);
+                                    snakes[sii].vies = snakes[sii].vies - 1;
+                                    console.log("Vies de " + sii + " : " + snakes[sii].vies);
+                                }
                             }
                         }
                     }
