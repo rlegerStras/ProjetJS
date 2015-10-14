@@ -83,7 +83,8 @@ function createSnakeServer() {
         histo : histo,
         directionX : directionX,
         directionY : directionY,
-        vies : 5
+        vies : 5,
+        score : 0
     };
     
     indCouleur = Math.random() * (couleurs.length + 1);
@@ -122,7 +123,7 @@ function update(UpSnakes) {
     var is,
         i,
         p = document.getElementsByTagName("table")[0],
-        str = "<th>Scores</th>";
+        str = "<th><td>Vies</td><td>Score</td></th>";
     
     // Mise à jour des nouvelles coordonnées par le serveur
     for (is = 0; is < UpSnakes.length; is = is + 1) {
@@ -131,12 +132,20 @@ function update(UpSnakes) {
                 snakes[is].disques[i].position.x = UpSnakes[is].disques[i].x;
                 snakes[is].disques[i].position.y = UpSnakes[is].disques[i].y;
             }
-            str = str + "<tr><td>Player " + is + "</td><td>" + UpSnakes[is].vies + "</td></tr>";
+            str = str + "<tr><td>Player " + is + "</td><td>" + UpSnakes[is].vies + "</td><td>" + UpSnakes[is].score + "</td></tr>";
         }
     }
     p.innerHTML = str + "</table>";
     // Update de la vue
     paper.view.update();
+}
+
+/**
+* 
+*/
+function setJoueur(id) {
+    var h = document.getElementsByTagName("h3")[0];
+    h.innerHTML = h.innerHTML + " " + id;
 }
 
 /**
@@ -157,7 +166,8 @@ ws.onmessage = function (message) {
         newSnake,
         upSnakes,
         currentDelete,
-        i;
+        i,
+        id;
     
     // Création du snake vers le serveur
     if (message.data.indexOf("creationSnake") !== -1) {
@@ -186,6 +196,11 @@ ws.onmessage = function (message) {
         snakes[currentDelete] = null;
     } else if (message.data.indexOf("finPartie") !== -1) {
         alert("Vous avez perdu !");
+        
+    } else if (message.data.indexOf("Player") !== -1) {
+        id = message.data.replace("Player", "");
+        console.log(id);
+        setJoueur(id);
     }
 };
 

@@ -1,6 +1,6 @@
 #vies{
     margin-left:820px;
-    margin
+    margin-top: 50px;
 }
 
 #cv{
@@ -8,9 +8,29 @@
 }
 
 #tabVies{
+    background-color: #0033FF;
     border:1px solid black;
+    text-align: center;
 }
 
 td{
     border:1px solid black;
+    padding : 2px;
+}
+
+body{
+    background-color : #545454;
+    color : white;
+}
+
+canvas{
+    background-color : white;
+}
+
+h1{
+    text-align: center;
+}
+
+h3{
+    padding-left: 30px;   
 }

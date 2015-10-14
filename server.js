@@ -87,12 +87,13 @@ wss.on('connection', function connection(ws) {
             console.log("Connexion client", snakes.length - 1);
             
             for (i = 0; i < clients.length; i = i + 1) {
-                if (clients[i] !== null) {
+                if (clients[i] !== null && clients[i].readyState !== 2) {
                     if (clients[i] === ws) {
                         for (sn = 0; sn < snakes.length - 1; sn = sn + 1) {
                             currentJ = JSON.stringify(snakes[sn]);
                             ws.send("creationSnake" + currentJ);
                         }
+                        ws.send("Player" + i);
                     }
                     clients[i].send("creationSnake" + messageJ);
                 }
@@ -102,7 +103,7 @@ wss.on('connection', function connection(ws) {
             pointJ = message.replace("clic", "");
             point = JSON.parse(pointJ);
             for (i = 0; i < clients.length; i = i + 1) {
-                if (clients[i] !== null) {
+                if (clients[i] !== null && clients[i].readyState !== 2) {
                     if (clients[i] === ws && snakes[i] !== null) {
                         changeDirection(point, i);
                     }
@@ -126,7 +127,7 @@ wss.on('connection', function connection(ws) {
             }
         }
         for (i = 0; i < clients.length; i = i + 1) {
-            if (clients[i] !== null) {
+            if (clients[i] !== null && clients[i].readyState !== 2) {
                 clients[i].send("delete" + currentDelete);
             }
         }
@@ -237,7 +238,7 @@ function touche(idAgresseur, idTouche) {
             clients[idAgresseur].send("finPartie");
 
             for (i = 0; i < clients.length; i = i + 1) {
-                if (clients[i] !== null) {
+                if (clients[i] !== null && clients[i].readyState !== 2) {
                     clients[i].send("delete" + idAgresseur);
                 }
             }
@@ -280,11 +281,17 @@ function testDetection() {
                                 // Si la tête du 1er snake a touché l'autre snake
                                 if (j === 0) {
                                     touche(si, sii);
+                                    if (jj !== 0) {
+                                        snakes[sii].score = snakes[sii].score + 1;
+                                    }
                                 }
                                 
                                 // Si la tête du 2eme snake a touché l'autre snake
                                 if (jj === 0) {
                                     touche(sii, si);
+                                    if (j !== 0) {
+                                        snakes[si].score = snakes[si].score + 1;
+                                    }
                                 }
                             }
                         }
