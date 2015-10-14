@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
+        <link rel="stylesheet" type="text/css" href="index_files/CSS/index.css">
 		<!-- Load the Paper.js library -->
-		<script type="text/javascript" src="index_files/paper.js"></script>
-		<script type="text/javascript" src="server.js"></script>
+		<script type="text/javascript" src="index_files/JS/paper.js"></script>
 		<!-- Define inlined PaperScript associate it with myCanvas -->
-		<script type="text/paperscript" src="index_files/canvasPerso.js" canvas="myCanvas">
+		<script type="text/paperscript" src="index_files/JS/canvasPerso.js" canvas="myCanvas">
 		</script>
 	</head>
 	<body>
-		<!--<audio id="audioPlayer" src="Shake_Down.mp3"></audio>-->
+		<audio id="audioPlayer" src="index_files/Music/Shake_Down.mp3"></audio>
 		<h1>Bonjour le monde !</h1>
 		<h3>Salut à tous et bienvenue à notre super jeu Snakes ... Multijoueurs !</h3>
-		<canvas id="myCanvas" width="1000" height="500" style="border:1px solid black;"></canvas>
-        <p>Scores :</p>
+        <div id="cv">
+		  <canvas id="myCanvas" width="1000" height="500" style="border:1px solid black;"></canvas>
+        </div>
+        <div id="vies">
+            <p>Vies :</p>
+        </div>
 	</body>
 </html>
