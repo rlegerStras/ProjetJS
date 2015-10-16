@@ -34,3 +34,21 @@ h1{
 h3{
     padding-left: 30px;   
 }
+
+#carre
+{
+    position:absolute;
+    width:30px;
+	height:30px;
+    top:75px;
+	left:760px;
+}
+
+#tete
+{
+    position:absolute;
+    width:10px;
+	height:30px;
+    top:75px;
+	left:790px;
+}

@@ -148,6 +148,14 @@ function setJoueur(id) {
     h.innerHTML = h.innerHTML + " " + id;
 }
 
+function setColor(color, id) {
+    if (id === 0) {
+        document.getElementById("tete").style.backgroundColor = color;
+    } else if (id === 1) {
+        document.getElementById("carre").style.backgroundColor = color;
+    }
+}
+
 /**
 Ouverture de session
 */
@@ -167,7 +175,8 @@ ws.onmessage = function (message) {
         upSnakes,
         currentDelete,
         i,
-        id;
+        id,
+        color;
     
     // Création du snake vers le serveur
     if (message.data.indexOf("creationSnake") !== -1) {
@@ -201,6 +210,14 @@ ws.onmessage = function (message) {
         id = message.data.replace("Player", "");
         console.log(id);
         setJoueur(id);
+    } else if (message.data.indexOf("Color0") !== -1) {
+        color = message.data.replace("Color0", "");
+        console.log(color);
+        setColor(color, 0);
+    } else if (message.data.indexOf("Color1") !== -1) {
+        color = message.data.replace("Color1", "");
+        console.log(color);
+        setColor(color, 1);
     }
 };
 

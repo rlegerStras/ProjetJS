@@ -93,11 +93,14 @@ wss.on('connection', function connection(ws) {
                             currentJ = JSON.stringify(snakes[sn]);
                             ws.send("creationSnake" + currentJ);
                         }
-                        ws.send("Player" + i);
                     }
                     clients[i].send("creationSnake" + messageJ);
                 }
             }
+            
+            ws.send("Player" + (i - 1));
+            ws.send("Color0" + snake.disques[0].color);
+            ws.send("Color1" + snake.disques[1].color);
             
         } else if (message.indexOf("clic") !== -1) {
             pointJ = message.replace("clic", "");
@@ -217,8 +220,6 @@ function reinitialisation(idSnake) {
                 y : snakes[idSnake].disques[di].y
             };
         }
-        snakes[idSnake].directionX = 1;
-        snakes[idSnake].directionY = 0;
         
         initDistanceX = initDistanceX - tailleCercle;
     }
