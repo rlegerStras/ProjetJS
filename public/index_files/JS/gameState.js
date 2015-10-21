@@ -9,7 +9,8 @@ var clients = [],
 /*Var constantes pour le canvas*/
 var maxX = 800,
     maxY = 400,
-    tailleCercle = 10;
+    tailleCercle = 10,
+    nkInit = 300;
 
 /**
 * Déplacement vers la gauche de l'historique d'un serpent
@@ -124,6 +125,8 @@ var reinitialisation = function (idSnake) {
         // Décalage entre les disques
         initDistanceX = initDistanceX - tailleCercle;
     }
+    
+    snakes[idSnake].noKill = nkInit;
 };
 
 /**
@@ -182,7 +185,7 @@ var testDetection = function () {
     for (si = 0; si < snakes.length; si = si + 1) {
         currentSnake = snakes[si];
         
-        if (currentSnake !== null) {
+        if (currentSnake !== null && currentSnake.noKill === 0) {
             for	(j = currentSnake.disques.length - 1; j > -1; j = j - 1) {
                 currentDisk = currentSnake.disques[j];
                 
@@ -190,7 +193,7 @@ var testDetection = function () {
                 for (sii = si + 1; sii < snakes.length; sii = sii + 1) {
                     comparativeSnake = snakes[sii];
                     
-                    if (comparativeSnake !== null) {
+                    if (comparativeSnake !== null && comparativeSnake.noKill === 0) {
                         for	(jj = comparativeSnake.disques.length - 1; jj > -1; jj = jj - 1) {
                             comparativeDisk = comparativeSnake.disques[jj];
                             
@@ -263,6 +266,15 @@ var manageObstacle = function () {
     }
 };
 
+var manageNoKill = function () {
+    var si;
+    for (si = 0; si < snakes.length; si = si + 1) {
+        if (snakes[si].noKill !== 0) {
+            snakes[si].noKill = snakes[si].noKill - 1;
+        }
+    }
+};
+
 module.exports = {
     changeDirection : changeDirection,
     decalageHistorique : decalageHistorique,
@@ -271,6 +283,7 @@ module.exports = {
     touche : touche,
     testDetection : testDetection,
     manageObstacle : manageObstacle,
+    manageNoKill : manageNoKill,
     clients : clients,
     snakes : snakes,
     ids : ids,

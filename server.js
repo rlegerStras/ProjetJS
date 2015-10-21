@@ -159,4 +159,9 @@ setInterval(function () {
     
     // Test des collisions
     gameState.testDetection();
+    
+    gameState.manageNoKill();
+    if (gameState.snakes.length > 0) {
+        console.log(gameState.snakes[0].noKill);
+    }
 }, 20);
