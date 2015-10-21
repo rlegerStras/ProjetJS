@@ -18,6 +18,10 @@ var ws,
 
 ws = new WebSocket('wss://localhost:3000');
 
+
+/**
+*Fonction qui gère la création d'un disque basiquement, avec x, y et sa couleur
+*/
 function createCircle(nombre, disques) {
     var xVal,
         yVal,
@@ -48,6 +52,9 @@ function createCircle(nombre, disques) {
     return disque;
 }
 
+/**
+* Création du snake complet destiné au serveur
+*/
 function createSnakeServer() {
     var directionX = 1,
         directionY = 0,
@@ -93,7 +100,9 @@ function createSnakeServer() {
     return snake;
 }
 
-// Affichage du snake sous Paper
+/**
+* Affichage du snake sous Paper
+*/
 function createSnakePaper(newSnake) {
     var disques = [],
         disque,
@@ -117,7 +126,7 @@ function createSnakePaper(newSnake) {
 }
 
 /**
-Mise à jour des vues
+* Mise à jour des vues
 */
 function update(UpSnakes) {
     var is,
@@ -141,13 +150,16 @@ function update(UpSnakes) {
 }
 
 /**
-* 
+* Affichage de l'id du joueur courant
 */
 function setJoueur(id) {
     var h = document.getElementsByTagName("h3")[0];
     h.innerHTML = h.innerHTML + " " + id;
 }
 
+/**
+* Affichage des couleurs du snake courant
+*/
 function setColor(color, id) {
     if (id === 0) {
         document.getElementById("tete").style.backgroundColor = color;
@@ -203,17 +215,20 @@ ws.onmessage = function (message) {
         }
         
         snakes[currentDelete] = null;
+    // Affichage dans une box si fin de partie
     } else if (message.data.indexOf("finPartie") !== -1) {
         alert("Vous avez perdu !");
-        
+    // Gestion de l'id du joueur courant
     } else if (message.data.indexOf("Player") !== -1) {
         id = message.data.replace("Player", "");
         console.log(id);
         setJoueur(id);
+    // Gestion de la couleur de la tête du snake courant
     } else if (message.data.indexOf("Color0") !== -1) {
         color = message.data.replace("Color0", "");
         console.log(color);
         setColor(color, 0);
+    // Gestion de la couleur du corps du snake courant
     } else if (message.data.indexOf("Color1") !== -1) {
         color = message.data.replace("Color1", "");
         console.log(color);
@@ -236,6 +251,6 @@ function onMouseDown(event) {
     ws.send('clic' + Jpoint);
 }
 
-//Music
+/* Gestion de la musique */
 var player = document.querySelector('#audioPlayer');
 player.play();
