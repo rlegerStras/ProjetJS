@@ -132,11 +132,11 @@ var reinitialisation = function (idSnake) {
 /**
 * Traitement lorsque deux joueurs se touchent (le premier touche le deuxième)
 */
-var touche = function (idAgresseur, idTouche) {
+var touche = function (idAgresseur, idTouche, obs) {
     var i;
     
-    if (idTouche === -1) {
-        console.log(idAgresseur + " a touché un obstable !");
+    if (obs === 1) {
+        console.log(idAgresseur + " a touché l'obstacle " + idTouche + " !");
     } else {
         console.log(idAgresseur + " a touché " + idTouche + " !");
     }
@@ -179,11 +179,13 @@ var testDetection = function () {
         comparativeDisk,
         comparativeObs,
         d,
-        iObs;
+        iObs,
+        boolTouche;
     
     // Selection du snake courant
     for (si = 0; si < snakes.length; si = si + 1) {
         currentSnake = snakes[si];
+        boolTouche = false;
         
         if (currentSnake !== null && currentSnake.noKill === 0) {
             for	(j = currentSnake.disques.length - 1; j > -1; j = j - 1) {
@@ -198,23 +200,33 @@ var testDetection = function () {
                             comparativeDisk = comparativeSnake.disques[jj];
                             
                             // Test mathématique pour les collisions entre deux cercles
-                            if (Math.pow(comparativeDisk.x - currentDisk.x, 2) + Math.pow(comparativeDisk.y - currentDisk.y, 2) <= Math.pow(2 * tailleCercle, 2)) {
-                                d = new Date();
-                                console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
-                                
-                                // Si la tête du 1er snake a touché l'autre snake
-                                if (j === 0) {
-                                    touche(si, sii);
-                                    if (jj !== 0) {
-                                        snakes[sii].score = snakes[sii].score + 1;
+                            
+                            if (boolTouche === false) {
+                                if (Math.pow(comparativeDisk.x - currentDisk.x, 2) + Math.pow(comparativeDisk.y - currentDisk.y, 2) <= Math.pow(2 * tailleCercle, 2)) {
+                                    boolTouche = true;
+                                    d = new Date();
+                                    console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+
+                                    // Si la tête du 1er snake a touché l'autre snake
+                                    if (j === 0) {
+                                        touche(si, sii, 0);
+                                        if (jj !== 0) {
+                                            snakes[sii].score = snakes[sii].score + 1;
+                                        }
                                     }
-                                }
-                                
-                                // Si la tête du 2eme snake a touché l'autre snake
-                                if (jj === 0) {
-                                    touche(sii, si);
-                                    if (j !== 0) {
-                                        snakes[si].score = snakes[si].score + 1;
+                                    
+                                    // Si la tête du 2eme snake a touché l'autre snake
+                                    if (jj === 0) {
+                                        touche(sii, si, 0);
+                                        if (j !== 0) {
+                                            snakes[si].score = snakes[si].score + 1;
+                                        }
+                                    }
+                                    
+                                    // Si ce sont les 2 corps qui se touchent
+                                    if (jj !== 0 && j !== 0) {
+                                        touche(sii, si, 0);
+                                        touche(si, sii, 0);
                                     }
                                 }
                             }
@@ -223,10 +235,13 @@ var testDetection = function () {
                 }
                 for (iObs = 0; iObs < obstacles.length; iObs = iObs + 1) {
                     comparativeObs = obstacles[iObs];
-                    if (Math.pow(comparativeObs.x - currentDisk.x, 2) + Math.pow(comparativeObs.y - currentDisk.y, 2) <= Math.pow(tailleCercle + comparativeObs.rad, 2)) {
-                        d = new Date();
-                        console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
-                        touche(si, -1);
+                    if (boolTouche === false) {
+                        if (Math.pow(comparativeObs.x - currentDisk.x, 2) + Math.pow(comparativeObs.y - currentDisk.y, 2) <= Math.pow(tailleCercle + comparativeObs.rad, 2)) {
+                            boolTouche = true;
+                            d = new Date();
+                            console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                            touche(si, iObs, 1);
+                        }
                     }
                 }
             }
@@ -269,8 +284,18 @@ var manageObstacle = function () {
 var manageNoKill = function () {
     var si;
     for (si = 0; si < snakes.length; si = si + 1) {
-        if (snakes[si].noKill !== 0) {
-            snakes[si].noKill = snakes[si].noKill - 1;
+        if (snakes[si] !== null) {
+            if (snakes[si].noKill !== 0) {
+                snakes[si].noKill = snakes[si].noKill - 1;
+                
+                if (clients[si] !== null && clients[si].readyState !== 2) {
+                    if (snakes[si].noKill !== 0) {
+                        clients[si].send("InvincibleO");
+                    } else {
+                        clients[si].send("InvincibleN");
+                    }
+                }
+            }
         }
     }
 };

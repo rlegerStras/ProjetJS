@@ -30,7 +30,7 @@
  *
  */
 
-var paper = new function(undefined) {
+var paper = new function (undefined) {
 
 var Base = new function() {
 	var hidden = /^(statics|enumerable|beans|preserve)$/,

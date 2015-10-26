@@ -35,8 +35,7 @@ h3{
     padding-left: 30px;   
 }
 
-#carre
-{
+#carre{
     position:absolute;
     width:30px;
 	height:30px;
@@ -44,11 +43,15 @@ h3{
 	left:760px;
 }
 
-#tete
-{
+#tete{
     position:absolute;
     width:10px;
 	height:30px;
     top:75px;
 	left:790px;
+}
+
+#inv{
+    position:absolute;
+    top:510px;
 }
