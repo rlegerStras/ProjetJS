@@ -249,6 +249,9 @@ var testDetection = function () {
     }
 };
 
+/**
+* Fonction qui permet de créer, supprimer un obstacle selon un nombre aléatoire. (Peut ne rien faire)
+*/
 var manageObstacle = function () {
     var nouvelObst = Math.floor(Math.random() * 500),
         initDistanceX,
@@ -256,6 +259,7 @@ var manageObstacle = function () {
         obs,
         i;
     
+    // 2 chances sur 500 de créer un obstacle, et taille maximum de 10 obstacles sur la map
     if ((nouvelObst === 1 || nouvelObst === 2) && obstacles.length < 10) {
         obs = {
             x : Math.random() * (maxX + 1),
@@ -263,13 +267,13 @@ var manageObstacle = function () {
             rad : Math.floor(Math.random() * (50 - 26)) + 25
         };
         obstacles.push(obs);
-        console.log(obstacles);
         // Envoi de du nouvel obstacle
         for (i = 0; i < clients.length; i = i + 1) {
             if (clients[i] !== null && clients[i].readyState !== 2) {
                 clients[i].send("creaObs" + JSON.stringify(obs));
             }
         }
+    // 1 chance sur 500 de supprimer un obstacle
     } else if (nouvelObst === 3 && obstacles.length > 0) {
         obstacles.splice(0, 1);
         for (i = 0; i < clients.length; i = i + 1) {
@@ -277,18 +281,24 @@ var manageObstacle = function () {
                 clients[i].send("delObs");
             }
         }
-        console.log(obstacles);
     }
 };
 
+/**
+* Gère si un snake est invincible ou non
+*/
 var manageNoKill = function () {
     var si;
+    // Pour tous les snakes
     for (si = 0; si < snakes.length; si = si + 1) {
         if (snakes[si] !== null) {
+            // Mise à jour de la valeur de noKill du snake
             if (snakes[si].noKill !== 0) {
                 snakes[si].noKill = snakes[si].noKill - 1;
                 
+                // Si le client est toujours présent
                 if (clients[si] !== null && clients[si].readyState !== 2) {
+                    //Si la valeur de noKill est nulle, alors le snake est vulnérable. Si il est positif, il est invincible
                     if (snakes[si].noKill !== 0) {
                         clients[si].send("InvincibleO");
                     } else {

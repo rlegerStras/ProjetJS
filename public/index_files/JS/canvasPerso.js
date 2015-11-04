@@ -13,13 +13,15 @@ var ws,
     nbDisqueIni = 8,
     snakes = [],
     obstacles = [],
-    couleurs = ["#F0F8FF", "#FAEBD7", "#00FFFF", "#7FFFD4", "#F0FFFF", "#FFE4C4", "#FFEBCD", "#0000FF", "#8A2BE2", "#A52A2A", "#DEB887", "#5F9EA0", "#7FFF00", "#D2691E", "#FF7F50", "#6495ED", "#FFF8DC", "#DC143C", "#00FFFF", "#00008B", "#008B8B", "#B8860B", "#A9A9A9", "#006400", "#BDB76B", "#8B008B", "#556B2F", "#FF8C00", "#9932CC", "#8B0000", "#E9967A", "#8FBC8F", "#483D8B", "#2F4F4F", "#00CED1", "#9400D3", "#FF1493", "#00BFFF", "#696969", "#1E90FF", "#B22222", "#228B22", "#FF00FF", "#FFD700", "#DAA520", "#808080", "#008000", "#ADFF2F", "#FF69B4", "#CD5C5C", "#4B0082", "#F0E68C", "#E6E6FA", "#FFF0F5", "#7CFC00", "#FFFACD", "#ADD8E6", "#F08080", "#FAFAD2", "#90EE90", "#D3D3D3", "#FFB6C1", "#FFA07A", "#20B2AA", "#87CEFA", "#778899", "#B0C4DE", "#00FF00", "#32CD32", "#FAF0E6", "#FF00FF", "#800000", "#66CDAA", "#0000CD", "#BA55D3", "#9370DB", "#3CB371", "#7B68EE", "#00FA9A", "#48D1CC", "#C71585", "#191970", "#FFE4E1", "#FFE4B5", "#FFDEAD", "#000080", "#808000", "#6B8E23", "#FFA500", "#FF4500", "#DA70D6", "#EEE8AA", "#98FB98", "#AFEEEE", "#DB7093", "#FFEFD5", "#FFDAB9", "#CD853F", "#FFC0CB", "#DDA0DD", "#B0E0E6", "#800080", "#FF0000", "#BC8F8F", "#4169E1", "#8B4513", "#FA8072", "#F4A460", "#2E8B57", "#A0522D", "#C0C0C0", "#87CEEB", "#6A5ACD", "#708090", "#00FF7F", "#4682B4", "#D2B48C", "#008080", "#D8BFD8", "#FF6347", "#40E0D0", "#EE82EE", "#F5DEB3", "#FFFF00", "9ACD32"],
+    couleurs = ["#F0F8FF", "#FAEBD7", "#00FFFF", "#7FFFD4", "#FFE4C4", "#FFEBCD", "#0000FF", "#8A2BE2", "#A52A2A", "#DEB887", "#5F9EA0", "#7FFF00", "#D2691E", "#FF7F50", "#6495ED", "#DC143C", "#00FFFF", "#00008B", "#008B8B", "#B8860B", "#A9A9A9", "#006400", "#BDB76B", "#8B008B", "#556B2F", "#FF8C00", "#9932CC", "#8B0000", "#E9967A", "#8FBC8F", "#483D8B", "#2F4F4F", "#00CED1", "#9400D3", "#FF1493", "#00BFFF", "#696969", "#1E90FF", "#B22222", "#228B22", "#FF00FF", "#FFD700", "#DAA520", "#808080", "#008000", "#ADFF2F", "#FF69B4", "#CD5C5C", "#4B0082", "#F0E68C", "#E6E6FA", "#FFF0F5", "#7CFC00", "#ADD8E6", "#F08080", "#FAFAD2", "#90EE90", "#D3D3D3", "#FFB6C1", "#FFA07A", "#20B2AA", "#87CEFA", "#778899", "#B0C4DE", "#00FF00", "#32CD32", "#FF00FF", "#800000", "#66CDAA", "#0000CD", "#BA55D3", "#9370DB", "#3CB371", "#7B68EE", "#00FA9A", "#48D1CC", "#C71585", "#191970", "#FFE4E1", "#FFE4B5", "#FFDEAD", "#000080", "#808000", "#6B8E23", "#FFA500", "#FF4500", "#DA70D6", "#EEE8AA", "#98FB98", "#AFEEEE", "#DB7093", "#FFEFD5", "#FFDAB9", "#CD853F", "#FFC0CB", "#DDA0DD", "#B0E0E6", "#800080", "#FF0000", "#BC8F8F", "#4169E1", "#8B4513", "#FA8072", "#F4A460", "#2E8B57", "#A0522D", "#C0C0C0", "#87CEEB", "#6A5ACD", "#708090", "#00FF7F", "#4682B4", "#D2B48C", "#008080", "#D8BFD8", "#FF6347", "#40E0D0", "#EE82EE", "#F5DEB3", "#FFFF00", "9ACD32"],
     indCouleur = Math.floor(Math.random() * (couleurs.length + 1)),
     indCouleurTete = Math.floor(Math.random() * (couleurs.length + 1)),
     nkInit = 300;
 
 ws = new WebSocket('wss://localhost:3000');
 
+console.log(indCouleur);
+console.log(indCouleurTete);
 
 /**
 *Fonction qui gère la création d'un disque basiquement, avec x, y et sa couleur
@@ -171,7 +173,11 @@ function setColor(color, id) {
     }
 }
 
+/**
+* Creation d'un obstacle dans le canvas
+*/
 function setObstacle(obs) {
+    // Creation grace a Paper
     var newObs = new Path.Circle({
             center: [obs.x, obs.y],
             radius: obs.rad,
@@ -179,9 +185,6 @@ function setObstacle(obs) {
         });
     
     obstacles.push(newObs);
-    console.log(obs.x);
-    console.log(obs.y);
-    console.log(obs.rad);
 }
 
 /**
@@ -236,7 +239,6 @@ ws.onmessage = function (message) {
     // Affichage dans une box si fin de partie
     } else if (message.data.indexOf("finPartie") !== -1) {
         alert("Vous avez perdu !");
-        console.log("mort");
     // Gestion de l'id du joueur courant
     } else if (message.data.indexOf("Player") !== -1) {
         id = message.data.replace("Player", "");
@@ -249,23 +251,23 @@ ws.onmessage = function (message) {
     } else if (message.data.indexOf("Color1") !== -1) {
         color = message.data.replace("Color1", "");
         setColor(color, 1);
+    // Gestion de la création d'obstacle
     } else if (message.data.indexOf("creaObs") !== -1) {
-        console.log("ok");
         obs = JSON.parse(message.data.replace("creaObs", ""));
-        console.log(obs.x);
-        console.log(obs.y);
-        console.log(obs.rad);
         setObstacle(obs);
+    // Gestion de la destruction d'obstacle
     } else if (message.data.indexOf("delObs") !== -1) {
         obstacles[0].remove();
         obstacles.splice(0, 1);
+    // Gestion de l'invincibilite
     } else if (message.data.indexOf("Invincible") !== -1) {
+        // Affichage du message d'invincibilité
         if (message.data.replace("Invincible", "") === 'O') {
             document.getElementById("inv").innerHTML = "<p> Vous êtes invincible </p>";
-            
+        //Aucune action requise
         } else if (message.data.replace("Invincible", "") === 'N') {
             document.getElementById("inv").innerHTML = "";
-            
+        // Erreur 
         } else {
             document.getElementById("inv").innerHTML = "Erreur";
         }
@@ -292,4 +294,3 @@ function onMouseDown(event) {
 var player = document.querySelector('#audioPlayer');
 player.loop = true;
 player.play();
-console.log(player);

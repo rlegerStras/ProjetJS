@@ -78,7 +78,6 @@ wss.on('connection', function connection(ws) {
                             currentJ = JSON.stringify(gameState.snakes[sn]);
                             ws.send("creationSnake" + currentJ);
                         }
-                        console.log(gameState.obstacles);
                         for (sn = 0; sn < gameState.obstacles.length; sn = sn + 1) {
                             currentJ = JSON.stringify(gameState.obstacles[sn]);
                             ws.send("creaObs" + currentJ);
@@ -161,4 +160,4 @@ setInterval(function () {
     gameState.testDetection();
     
     gameState.manageNoKill();
-}, 20);
+}, 18);
