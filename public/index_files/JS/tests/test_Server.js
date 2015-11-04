@@ -54,6 +54,20 @@ function test_touche(expected) {
     }
 }
 
+function test_toucheBonus(expected, id) {
+    //Simulation du snake 0 attrapant un bonus
+    var newVal;
+    gameState.toucheBonus(id);
+    newVal = gameState.snakes[0].score;
+    
+    if (newVal === expected) {
+        console.log("true");
+    } else {
+        console.log("false");
+        console.log("expected " + expected + ", found " + newVal);
+    }
+}
+
 /**
 * Fonction de test de testDetection
 */
@@ -132,6 +146,8 @@ function main() {
     test_touche(gameState.snakes[0].vies - 1);
     console.log("Test detection");
     test_testDetection(gameState.snakes[0].score);
+    console.log("Test toucheBonus");
+    test_toucheBonus(gameState.snakes[0].score + 1, 0);
 }
 
 main();

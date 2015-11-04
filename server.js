@@ -66,7 +66,7 @@ wss.on('connection', function connection(ws) {
             // Ajout du snake au tableau global
             gameState.snakes.push(snake);
             
-            console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+            console.log("\n" + d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
             console.log("Connexion client", gameState.snakes.length - 1);
             
             // Pour tous les clients, envoi du nouveau snake dans un message
@@ -81,6 +81,10 @@ wss.on('connection', function connection(ws) {
                         for (sn = 0; sn < gameState.obstacles.length; sn = sn + 1) {
                             currentJ = JSON.stringify(gameState.obstacles[sn]);
                             ws.send("creaObs" + currentJ);
+                        }
+                        if (gameState.bonus !== null) {
+                            currentJ = JSON.stringify(gameState.bonus);
+                            ws.send("creaBonus" + currentJ);
                         }
                     }
                     gameState.clients[i].send("creationSnake" + messageJ);
@@ -119,7 +123,7 @@ wss.on('connection', function connection(ws) {
                 gameState.clients[i] = null;
                 gameState.snakes[i] = null;
                 d = new Date();
-                console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                console.log("\n" + d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
                 console.log('Client ' + i + ' déconnecté.');
                 currentDelete = i;
             }
@@ -145,6 +149,7 @@ wss.on('connection', function connection(ws) {
 setInterval(function () {
     // Calcul des nouvelles positions
     gameState.calculNewPosition();
+    
     var i,
         Jsnakes = JSON.stringify(gameState.snakes);
     
@@ -154,10 +159,16 @@ setInterval(function () {
             gameState.clients[i].send("update" + Jsnakes);
         }
     }
+    // Modification possible des obstacles
     gameState.manageObstacle();
     
     // Test des collisions
     gameState.testDetection();
     
+    // Modification de noKill des joueurs
     gameState.manageNoKill();
+    
+    // Ajout du bonus si non présent
+    gameState.manageBonus();
+    
 }, 18);

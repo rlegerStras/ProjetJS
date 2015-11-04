@@ -1,16 +1,22 @@
 /*jslint node: true */
 'use strict';
 
-var clients = [],
-    snakes = [],
-    obstacles = [],
-    ids = 0;
-
-/*Var constantes pour le canvas*/
+/* Var constantes pour le canvas */
 var maxX = 800,
     maxY = 400,
     tailleCercle = 10,
     nkInit = 300;
+
+/* Var globales à envoyer au serveur */
+var clients = [],
+    snakes = [],
+    obstacles = [],
+    ids = 0,
+    bonus = {
+        x : 0,
+        y : 0,
+        size : 0
+    };
 
 /**
 * Déplacement vers la gauche de l'historique d'un serpent
@@ -130,6 +136,26 @@ var reinitialisation = function (idSnake) {
 };
 
 /**
+* Intervient quand le bonus est touché. Ajout d'un point et suppression du bonus
+*/
+var toucheBonus = function (si) {
+    var i;
+    
+    console.log(si + " a attrapé le bonus !");
+    // Reinitialisation du bonus
+    bonus.size = 0;
+    // Ajout d'un point pour le joueur
+    snakes[si].score = snakes[si].score + 1;
+    
+    // Envoi de la suppression du bonus
+    for (i = 0; i < clients.length; i = i + 1) {
+        if (clients[i] !== null && clients[i].readyState !== 2) {
+            clients[i].send("delBonus");
+        }
+    }
+};
+
+/**
 * Traitement lorsque deux joueurs se touchent (le premier touche le deuxième)
 */
 var touche = function (idAgresseur, idTouche, obs) {
@@ -205,7 +231,7 @@ var testDetection = function () {
                                 if (Math.pow(comparativeDisk.x - currentDisk.x, 2) + Math.pow(comparativeDisk.y - currentDisk.y, 2) <= Math.pow(2 * tailleCercle, 2)) {
                                     boolTouche = true;
                                     d = new Date();
-                                    console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                                    console.log("\n" + d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
 
                                     // Si la tête du 1er snake a touché l'autre snake
                                     if (j === 0) {
@@ -233,14 +259,28 @@ var testDetection = function () {
                         }
                     }
                 }
+                // Pour tous les obstacles
                 for (iObs = 0; iObs < obstacles.length; iObs = iObs + 1) {
                     comparativeObs = obstacles[iObs];
+                    //Si il n'a pas déjà été touché
                     if (boolTouche === false) {
                         if (Math.pow(comparativeObs.x - currentDisk.x, 2) + Math.pow(comparativeObs.y - currentDisk.y, 2) <= Math.pow(tailleCercle + comparativeObs.rad, 2)) {
                             boolTouche = true;
                             d = new Date();
-                            console.log(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                            console.log("\n" + d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                            // Perte de vie et reinitialisation
                             touche(si, iObs, 1);
+                        }
+                    }
+                }
+                if (bonus !== null) {
+                    if (boolTouche === false) {
+                        if (Math.pow(bonus.x - currentDisk.x, 2) + Math.pow(bonus.y - currentDisk.y, 2) <= Math.pow(tailleCercle + bonus.size, 2)) {
+                            boolTouche = true;
+                            d = new Date();
+                            console.log("\n" + d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.toLocaleTimeString());
+                            //Ajout d'un point et redéfinition du bonus
+                            toucheBonus(si);
                         }
                     }
                 }
@@ -254,8 +294,6 @@ var testDetection = function () {
 */
 var manageObstacle = function () {
     var nouvelObst = Math.floor(Math.random() * 500),
-        initDistanceX,
-        initDistanceY,
         obs,
         i;
     
@@ -279,6 +317,27 @@ var manageObstacle = function () {
         for (i = 0; i < clients.length; i = i + 1) {
             if (clients[i] !== null && clients[i].readyState !== 2) {
                 clients[i].send("delObs");
+            }
+        }
+    }
+};
+
+/**
+* Fonction qui permet de créer un bonus s'il n'existe pas
+*/
+var manageBonus = function () {
+    var i;
+    
+    // Si le bonus n'existe pas
+    if (bonus.size === 0) {
+        bonus.x = Math.random() * maxX;
+        bonus.y = Math.random() * maxY;
+        bonus.size = 10;
+        
+        // Envoi du nouvel obstacle
+        for (i = 0; i < clients.length; i = i + 1) {
+            if (clients[i] !== null && clients[i].readyState !== 2) {
+                clients[i].send("creaBonus" + JSON.stringify(bonus));
             }
         }
     }
@@ -310,17 +369,21 @@ var manageNoKill = function () {
     }
 };
 
+/* Envoi au serveur */
 module.exports = {
     changeDirection : changeDirection,
     decalageHistorique : decalageHistorique,
     calculNewPosition : calculNewPosition,
     reinitialisation : reinitialisation,
     touche : touche,
+    toucheBonus : toucheBonus,
     testDetection : testDetection,
     manageObstacle : manageObstacle,
+    manageBonus : manageBonus,
     manageNoKill : manageNoKill,
     clients : clients,
     snakes : snakes,
     ids : ids,
-    obstacles : obstacles
+    obstacles : obstacles,
+    bonus : bonus
 };
