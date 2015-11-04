@@ -120,11 +120,17 @@ function test_calculNewPosition(expectedX, expectedY) {
 * Main des tests
 */
 function main() {
+    console.log("Test décalage historique");
     test_decalageHistorique(gameState.snakes[0].histo.corps0[1].x, gameState.snakes[0].histo.corps0[1].y);
+    console.log("Test change direction");
     test_changeDirection(-1, 0);
+    console.log("Test calcul new position");
     test_calculNewPosition(199, 385);
+    console.log("Test calcul new position");
     test_calculNewPosition(198, 385);
+    console.log("Test touche");
     test_touche(gameState.snakes[0].vies - 1);
+    console.log("Test detection");
     test_testDetection(gameState.snakes[0].score);
 }
 
